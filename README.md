@@ -12,7 +12,7 @@ space work to make sure the project works on your local machine.
 The project, which has already been created, is called "seniordesignlab1"
 The app, which has already been created, is called "lab1software"
 
-Before you can run this project, you need to create your environment and install django within the project directory. 
+Before you can run this project, you need to create your environment and install django within the project directory depending on your system. 
 You can follow the documentation for more details.
 
 https://docs.djangoproject.com/en/3.2/
