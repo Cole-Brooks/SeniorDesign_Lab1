@@ -15,6 +15,7 @@ The app, which has already been created, is called "lab1software"
 Before you can run this project, you need to create your environment and install django depending on your system within the project directory . 
 You can follow the documentation for more details.
 
+
 https://docs.djangoproject.com/en/3.2/
 
 ### User Documentation
