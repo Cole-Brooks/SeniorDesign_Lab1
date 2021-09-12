@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+{% extends 'base.html' %}
+{% load static %}
+
+
+<head>
+        <!-- Required meta templatetags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>{% block title %}Log out{% endblock %}</title>
+</head>
+<body>
+    {% block content %}
+    <div class="container text-center bg-light py-5">
+        <h2>Logged out from Senior Design Lab 1 Dashboard</h2>
+        <div>
+            <p>You have successfully logged out. Thanks for you visit!</p>
+        </div>
+         <div>
+             <p>You can <a href="{% url 'user_login' %}">log in again</a>.</p>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

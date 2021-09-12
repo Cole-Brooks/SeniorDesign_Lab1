@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&2p-8pe9$y2x^1!#==i4$l-so^5u&%0-5l1ki0c8x*pwlw2q)&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
 
 
 # Application definition
@@ -55,7 +55,7 @@ ROOT_URLCONF = 'seniordesignlab1.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [str(BASE_DIR.joinpath('templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
