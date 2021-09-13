@@ -21,15 +21,18 @@
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
 // Wifi Information - You'll need to edit this
-char ssid[] = "1015 Kirkwood"; // network name
-char pass[] = "Bentley2021";
-// Email info
+char ssid[] = "1015 Kirkwood"; // network name - change to your wifi name
+char pass[] = "Bentley2021"; // network password - change to your wifi password
+
+// Email info - don't touch this. This is where emails will come from
 char eMailUser[] = "lab1texter@gmail.com";
 char eMailPass[] = "hitupwxqkxavkvza";
-char eMailRecipient[] = "cole.brooks.iowa@gmail.com";
-char phoneRecipient[] = "7125415271@email.uscc.net";
 
-int tempThreshold = 100;
+// Recipient email/phone number. Change this so you don't spam me :)
+char eMailRecipient[] = "lab1texter@gmail.com"; // currently set to same email that sends them for testing
+char phoneRecipient[] = "7125415271@email.uscc.net"; // message me if you need help figuring this out
+
+int tempThreshold = -200; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
 
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
@@ -101,7 +104,8 @@ void sendText(){
   Serial.println("sending text...");
   msg.subject = "TEMP ALERT";
   msg.message = "Temp sensed above temp threshold";
-  resp = emailSend.send(phoneRecipient, msg);
+//  resp = emailSend.send(phoneRecipient, msg);
+  resp = emailSend.send(eMailRecipient, msg);
 
   Serial.println("Sending status: ");
   Serial.print(resp.status);
@@ -118,9 +122,10 @@ void sendText(){
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // check current temperature
   sensors.requestTemperatures();
   for(int i = 0; i <= numberSensors; i++){
+    // Print the temp. If you see -196 that means your wiring is done wrong.
     Serial.print("Temp: ");
     temperature = sensors.getTempCByIndex(i);
     Serial.print(DallasTemperature::toFahrenheit(temperature));
@@ -128,8 +133,10 @@ void loop() {
     Serial.println("F");
   }
   Serial.println("");
-  delay(1000);
   if(DallasTemperature::toFahrenheit(temperature) > tempThreshold){
+    // if we're above the tempThreshold, send the text message
     sendText();
   }
+  // Run the loop once per second
+  delay(1000);
 }
