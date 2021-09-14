@@ -15,6 +15,8 @@
 // Temp Sensor Libraries
 #include <OneWire.h>
 #include <DallasTemperature.h>
+// LCD
+#include <LiquidCrystal.h>
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
@@ -24,6 +26,8 @@
 char ssid[] = "1015 Kirkwood"; // network name - change to your wifi name
 char pass[] = "Bentley2021"; // network password - change to your wifi password
 
+int status = WL_IDLE_STATUS;
+
 // Email info - don't touch this. This is where emails will come from
 char eMailUser[] = "lab1texter@gmail.com";
 char eMailPass[] = "hitupwxqkxavkvza";
@@ -32,7 +36,7 @@ char eMailPass[] = "hitupwxqkxavkvza";
 char eMailRecipient[] = "lab1texter@gmail.com"; // currently set to same email that sends them for testing
 char phoneRecipient[] = "7125415271@email.uscc.net"; // message me if you need help figuring this out
 
-int tempThreshold = -200; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
+int tempThreshold = 90; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
 
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
@@ -41,7 +45,8 @@ DallasTemperature sensors(&oneWire);
 int numberSensors;
 float temperature;
 
-int status = WL_IDLE_STATUS;
+// LCD object, params: (RS, E, D4, D5, D6, D7)
+LiquidCrystal lcd = LiquidCrystal(3, 4, 5, 6, 7, 8);
 
 void connectWifi(){
   // connects the IoT device to the wifi
@@ -82,6 +87,9 @@ void setup() {
   Serial.begin(9600);
   while(!Serial){;} // wait for serial port to connect
 
+  // init lcd params: (columns, rows)
+  lcd.begin(16,2);
+  
   // Check for the WiFi
   if(WiFi.status() == WL_NO_MODULE){
     Serial.println("The wifi module isn't working");
@@ -129,9 +137,15 @@ void loop() {
     Serial.print("Temp: ");
     temperature = sensors.getTempCByIndex(i);
     Serial.print(DallasTemperature::toFahrenheit(temperature));
-    Serial.print((char)176);
+    Serial.print((char)223);
     Serial.println("F");
   }
+
+  // After we have the temp we should update the LCD immediately
+  lcd.setCursor(2,0); // move the LCD to somewhat center
+  lcd.clear();
+  lcd.print("Hello World");
+  
   Serial.println("");
   if(DallasTemperature::toFahrenheit(temperature) > tempThreshold){
     // if we're above the tempThreshold, send the text message
