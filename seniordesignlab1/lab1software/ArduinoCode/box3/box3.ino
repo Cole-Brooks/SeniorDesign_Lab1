@@ -67,15 +67,15 @@ void connectWifi() {
   }
 }
 
-void printStatus() {
-  // prints the status of the wifi
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  // This device's IP address
-  Serial.print("IP ADDRESS: ");
-  Serial.println(WiFi.localIP());
-}
+//void printStatus() {
+//  // prints the status of the wifi
+//  Serial.print("SSID: ");
+//  Serial.println(WiFi.SSID());
+//
+//  // This device's IP address
+//  Serial.print("IP ADDRESS: ");
+//  Serial.println(WiFi.localIP());
+//}
 
 //void sendText() {
 //  char senderName[] = "lab1texter";
@@ -118,27 +118,27 @@ void setup() {
   connectWifi();
 
   // after wifi is set up, set up temperature sensor
-  numberSensors = sensors.getDeviceCount();
-  Serial.print(numberSensors);
-  Serial.println(" sensors found");
+//  numberSensors = sensors.getDeviceCount();
+//  Serial.print(numberSensors);
+//  Serial.println(" sensors found");
 }
 
 void loop() {
   // check current temperature
   sensors.requestTemperatures();
-  for (int i = 0; i <= numberSensors; i++) {
-    // Print the temp. If you see -196 that means your wiring is done wrong.
-    Serial.print("Temp: ");
-    temperature = sensors.getTempCByIndex(i);
-    Serial.print(DallasTemperature::toFahrenheit(temperature));
-    Serial.print((char)176);
-    Serial.println("F");
-  }
+  
+  // Print the temp. If you see -196 that means your wiring is done wrong.
+  Serial.print("Temp: ");
+  temperature = sensors.getTempCByIndex(0);
+  Serial.print(DallasTemperature::toFahrenheit(temperature));
+  Serial.print((char)176);
+  Serial.println("F");
+    
   Serial.println("");
-  if (DallasTemperature::toFahrenheit(temperature) > tempThreshold) {
-    // if we're above the tempThreshold, send the text message
-    // sendText();
-  }
+//  if (DallasTemperature::toFahrenheit(temperature) > tempThreshold) {
+//    // if we're above the tempThreshold, send the text message
+//    sendText();
+//  }
   // Run the loop once per second
   delay(1000);
 }
