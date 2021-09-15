@@ -1,14 +1,14 @@
 /*
- * Arduino Nano 33 IoT WiFi Test
- * Tests operability of wifi module onboard arduino
- * Results are posted to serial monitor
- * 
- * Cole Brooks 2021
- */
+   Arduino Nano 33 IoT WiFi Test
+   Tests operability of wifi module onboard arduino
+   Results are posted to serial monitor
+
+   Cole Brooks 2021
+*/
 
 // Serial port interface. Download this
 #include <SPI.h>
-// Wifi library. Also necessary. 
+// Wifi library. Also necessary.
 #include <WiFiNINA.h>
 // Email sender
 #include <EMailSender.h>
@@ -21,16 +21,16 @@
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
 // Wifi Information - You'll need to edit this
-char ssid[] = "1015 Kirkwood"; // network name - change to your wifi name
-char pass[] = "Bentley2021"; // network password - change to your wifi password
+char ssid[] = "Golden Legendary"; // network name - change to your wifi name
+char pass[] = "ZJCZHY2000"; // network password - change to your wifi password
 
 // Email info - don't touch this. This is where emails will come from
 char eMailUser[] = "lab1texter@gmail.com";
 char eMailPass[] = "hitupwxqkxavkvza";
 
 // Recipient email/phone number. Change this so you don't spam me :)
-char eMailRecipient[] = "lab1texter@gmail.com"; // currently set to same email that sends them for testing
-char phoneRecipient[] = "7125415271@email.uscc.net"; // message me if you need help figuring this out
+char eMailRecipient[] = "zdszym@me.com"; // currently set to same email that sends them for testing
+char phoneRecipient[] = "3193839547@txt.att.net"; // message me if you need help figuring this out
 
 int tempThreshold = -200; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
 
@@ -43,9 +43,9 @@ float temperature;
 
 int status = WL_IDLE_STATUS;
 
-void connectWifi(){
+void connectWifi() {
   // connects the IoT device to the wifi
-  while(status != WL_CONNECTED){
+  while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to wifi network: ");
     Serial.println(ssid);
 
@@ -55,7 +55,7 @@ void connectWifi(){
     delay(1000);
     Serial.println("Connected...");
 
-      // prints the status of the wifi
+    // prints the status of the wifi
     Serial.print("SSID: ");
     Serial.println(WiFi.SSID());
 
@@ -65,7 +65,7 @@ void connectWifi(){
   }
 }
 
-void printStatus(){
+void printStatus() {
   // prints the status of the wifi
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -80,12 +80,14 @@ WiFiSSLClient client;
 void setup() {
   // Start the serial port with 9600 baud rate
   Serial.begin(9600);
-  while(!Serial){;} // wait for serial port to connect
+  while (!Serial) {
+    ; // wait for serial port to connect
+  }
 
-  // Check for the WiFi
-  if(WiFi.status() == WL_NO_MODULE){
+  //   Check for the WiFi
+  if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("The wifi module isn't working");
-    while(true);
+    while (true);
   }
 
   connectWifi();
@@ -96,7 +98,7 @@ void setup() {
   Serial.println(" sensors found");
 }
 
-void sendText(){
+void sendText() {
   char senderName[] = "lab1texter";
   EMailSender emailSend(eMailUser, eMailPass, eMailUser, senderName);
   EMailSender::EMailMessage msg;
@@ -104,8 +106,8 @@ void sendText(){
   Serial.println("sending text...");
   msg.subject = "TEMP ALERT";
   msg.message = "Temp sensed above temp threshold";
-//  resp = emailSend.send(phoneRecipient, msg);
-  resp = emailSend.send(eMailRecipient, msg);
+  resp = emailSend.send(phoneRecipient, msg);
+  // resp = emailSend.send(eMailRecipient, msg);
 
   Serial.println("Sending status: ");
   Serial.print(resp.status);
@@ -124,7 +126,7 @@ void sendText(){
 void loop() {
   // check current temperature
   sensors.requestTemperatures();
-  for(int i = 0; i <= numberSensors; i++){
+  for (int i = 0; i <= numberSensors; i++) {
     // Print the temp. If you see -196 that means your wiring is done wrong.
     Serial.print("Temp: ");
     temperature = sensors.getTempCByIndex(i);
@@ -133,9 +135,9 @@ void loop() {
     Serial.println("F");
   }
   Serial.println("");
-  if(DallasTemperature::toFahrenheit(temperature) > tempThreshold){
+  if (DallasTemperature::toFahrenheit(temperature) > tempThreshold) {
     // if we're above the tempThreshold, send the text message
-    sendText();
+    // sendText();
   }
   // Run the loop once per second
   delay(1000);
