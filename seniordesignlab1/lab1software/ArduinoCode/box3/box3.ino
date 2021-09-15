@@ -4,6 +4,7 @@
    Results are posted to serial monitor
 
    Cole Brooks 2021
+   Hongyu Zeng 2021
 */
 
 // Serial port interface. Download this
@@ -11,7 +12,7 @@
 // Wifi library. Also necessary.
 #include <WiFiNINA.h>
 // Email sender
-#include <EMailSender.h>
+//#include <EMailSender.h>
 // Temp Sensor Libraries
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -25,23 +26,24 @@ char ssid[] = "Golden Legendary"; // network name - change to your wifi name
 char pass[] = "ZJCZHY2000"; // network password - change to your wifi password
 
 // Email info - don't touch this. This is where emails will come from
-char eMailUser[] = "lab1texter@gmail.com";
-char eMailPass[] = "hitupwxqkxavkvza";
+//char eMailUser[] = "lab1texter@gmail.com";
+//char eMailPass[] = "hitupwxqkxavkvza";
 
 // Recipient email/phone number. Change this so you don't spam me :)
-char eMailRecipient[] = "zdszym@me.com"; // currently set to same email that sends them for testing
-char phoneRecipient[] = "3193839547@txt.att.net"; // message me if you need help figuring this out
-
-int tempThreshold = -200; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
+//char eMailRecipient[] = "zdszym@me.com"; // currently set to same email that sends them for testing
+//char phoneRecipient[] = "3193839547@txt.att.net"; // message me if you need help figuring this out
 
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
+// Wifi
+WiFiSSLClient client;
+int status = WL_IDLE_STATUS;
+
 int numberSensors;
 float temperature;
-
-int status = WL_IDLE_STATUS;
+int tempThreshold = 70; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
 
 void connectWifi() {
   // connects the IoT device to the wifi
@@ -75,7 +77,30 @@ void printStatus() {
   Serial.println(WiFi.localIP());
 }
 
-WiFiSSLClient client;
+//void sendText() {
+//  char senderName[] = "lab1texter";
+//  EMailSender emailSend(eMailUser, eMailPass, eMailUser, senderName);
+//  EMailSender::EMailMessage msg;
+//  EMailSender::Response resp;
+//  Serial.println("sending text...");
+//  msg.subject = "TEMP ALERT";
+//  msg.message = "Temp sensed above temp threshold";
+//  resp = emailSend.send(phoneRecipient, msg);
+//  // resp = emailSend.send(eMailRecipient, msg);
+//
+//  Serial.println("Sending status: ");
+//  Serial.print(resp.status);
+//  Serial.println(resp.code);
+//  Serial.println(resp.desc);
+//  Serial.println("");
+//  Serial.print("FROM: ");
+//  Serial.println(eMailUser);
+//  Serial.print("TO: ");
+//  Serial.println(phoneRecipient);
+//  Serial.print("DATA:");
+//  Serial.println("Temp sensed above temp threshold");
+//  Serial.println("");
+//}
 
 void setup() {
   // Start the serial port with 9600 baud rate
@@ -96,31 +121,6 @@ void setup() {
   numberSensors = sensors.getDeviceCount();
   Serial.print(numberSensors);
   Serial.println(" sensors found");
-}
-
-void sendText() {
-  char senderName[] = "lab1texter";
-  EMailSender emailSend(eMailUser, eMailPass, eMailUser, senderName);
-  EMailSender::EMailMessage msg;
-  EMailSender::Response resp;
-  Serial.println("sending text...");
-  msg.subject = "TEMP ALERT";
-  msg.message = "Temp sensed above temp threshold";
-  resp = emailSend.send(phoneRecipient, msg);
-  // resp = emailSend.send(eMailRecipient, msg);
-
-  Serial.println("Sending status: ");
-  Serial.print(resp.status);
-  Serial.println(resp.code);
-  Serial.println(resp.desc);
-  Serial.println("");
-  Serial.print("FROM: ");
-  Serial.println(eMailUser);
-  Serial.print("TO: ");
-  Serial.println(phoneRecipient);
-  Serial.print("DATA:");
-  Serial.println("Temp sensed above temp threshold");
-  Serial.println("");
 }
 
 void loop() {
