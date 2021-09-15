@@ -43,7 +43,7 @@ int status = WL_IDLE_STATUS;
 
 int numberSensors;
 float temperature;
-int tempThreshold = 70; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
+int tempThreshold = 30; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
 
 void connectWifi() {
   // connects the IoT device to the wifi
@@ -130,9 +130,8 @@ void loop() {
   // Print the temp. If you see -196 that means your wiring is done wrong.
   Serial.print("Temp: ");
   temperature = sensors.getTempCByIndex(0);
-  Serial.print(DallasTemperature::toFahrenheit(temperature));
-  Serial.print((char)176);
-  Serial.println("F");
+  Serial.print(temperature));
+  Serial.println("Celsius");
     
   Serial.println("");
 //  if (DallasTemperature::toFahrenheit(temperature) > tempThreshold) {
