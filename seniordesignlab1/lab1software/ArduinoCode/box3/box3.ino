@@ -22,8 +22,8 @@
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
 // Wifi Information - You'll need to edit this
-char ssid[] = "Golden Legendary"; // network name - change to your wifi name
-char pass[] = "ZJCZHY2000"; // network password - change to your wifi password
+const char *ssid = "Golden Legendary"; // network name - change to your wifi name
+const char *pass = "ZJCZHY2000"; // network password - change to your wifi password
 
 // Email info - don't touch this. This is where emails will come from
 //char eMailUser[] = "lab1texter@gmail.com";
@@ -38,7 +38,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // Wifi
-WiFiSSLClient client;
+//WiFiSSLClient client;
 int status = WL_IDLE_STATUS;
 
 int numberSensors;
@@ -130,8 +130,8 @@ void loop() {
   // Print the temp. If you see -196 that means your wiring is done wrong.
   Serial.print("Temp: ");
   temperature = sensors.getTempCByIndex(0);
-  Serial.print(temperature));
-  Serial.println("Celsius");
+  Serial.print(temperature);
+  Serial.println(" Celsius");
     
   Serial.println("");
 //  if (DallasTemperature::toFahrenheit(temperature) > tempThreshold) {
