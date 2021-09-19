@@ -47,17 +47,12 @@ websocketServer.on('connection',function(ws,req){
       // Close socket when client disconnects
       ws.on('close', function(){
             console.log("lost one client");
-
-
-});
-
-// Close socket when client disconnects
-websocketServer.on('close', function(){
-     console.log("lost one client");
+      });
 
 });
 
 // Listen to request to the server
-server.listen(port, function(socket) {
-      console.log('Server listening on port 3000...');
-});
+console.log('Server listening on port 3000...');
+server.listen(port);
+
+
