@@ -39,6 +39,9 @@
 #include <LiquidCrystal.h>
 // password info
 #include "Secrets.h"
+// websocket
+#include <ArduinoHttpClient.h>
+//https://github.com/arduino-libraries/ArduinoHttpClient/blob/master/examples/SimpleWebSocket/SimpleWebSocket.ino
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 9 // lower the precision.
@@ -47,6 +50,11 @@
 char *ssid = SECRET_SSID; // network name - change to your wifi name
 char *pass = SECRET_PASS; // network password - change to your wifi password
 int status = WL_IDLE_STATUS;
+char *serverAddress = SERVER_IP;
+int port = SERVER_PORT;
+WiFiClient wifi;
+WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
+
 
 //// Email info - don't touch this. This is where emails will come from
 //char eMailUser[] = "lab1texter@gmail.com";
@@ -169,10 +177,28 @@ void loop() {
     Serial.println("C");
   }
   Serial.println("");
-//  if (temperature > tempThreshold) {
-//    // if we're above the tempThreshold, send the text message
-//    sendText();
-//  }
+  //  if (temperature > tempThreshold) {
+  //    // if we're above the tempThreshold, send the text message
+  //    sendText();
+  //  }
   // Run the loop once per second
+  client.begin();
+
+  while (client.connected()) {
+    Serial.print("Sending hello ");
+    // send a hello #
+    client.beginMessage(TYPE_TEXT);
+    client.print("hello LAB1");
+    client.endMessage();
+
+    // check if a message is available to be received
+    int messageSize = client.parseMessage();
+    if (messageSize > 0) {
+      Serial.println("Received a message:");
+      Serial.println(client.readString());
+    }
+    // wait 5 seconds
+    delay(5000);
+  }
   delay(1000);
 }
