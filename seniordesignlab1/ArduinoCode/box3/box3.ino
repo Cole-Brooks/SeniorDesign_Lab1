@@ -67,7 +67,7 @@ WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int tempThreshold = 30; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CURRENTLY SET TO ALWAYS SEND ALERTS
-int numberSensors;
+//int numberSensors;
 float temperature;
 float noSensorTemp = -127.00;
 
@@ -131,7 +131,7 @@ void setup() {
   connectWifi();
 
   // after wifi is set up, set up temperature sensor
-  numberSensors = sensors.getDeviceCount();
+  //  numberSensors = sensors.getDeviceCount();
 }
 
 //void sendText() {
@@ -149,46 +149,43 @@ void setup() {
 //}
 
 void loop() {
-  // check current temperature
-  sensors.requestTemperatures();
-  for (int i = 0; i <= numberSensors; i++) {
-    // get the temperature
-    temperature = sensors.getTempCByIndex(i);
-
-    // Print to LCD
-    lcd.clear();
-    if (temperature == noSensorTemp) {
-      // no sensor was detected
-      lcd.print("Sensor unplugged");
-      lcd.setCursor(0, 1);
-      lcd.print("or damaged");
-      lcd.setCursor(0, 0);
-    }
-    else {
-      lcd.print("Temp: ");
-      lcd.print(temperature);
-      lcd.print((char)223);
-      lcd.print("C");
-    }
-
-    // Turn the below logging on if you don't have the screen connected
-    Serial.print(temperature);
-    Serial.print((char)176);
-    Serial.println("C");
+  // Print to LCD
+  lcd.clear();
+  if (temperature == noSensorTemp) {
+    // no sensor was detected
+    lcd.print("Sensor unplugged");
+    lcd.setCursor(0, 1);
+    lcd.print("or damaged");
+    lcd.setCursor(0, 0);
   }
-  Serial.println("");
+  else {
+    lcd.print("Temp: ");
+    lcd.print(temperature);
+    lcd.print((char)223);
+    lcd.print("C");
+  }
+
+  // Turn the below logging on if you don't have the screen connected
+  //  Serial.print(temperature);
+  //  Serial.print((char)176);
+  //  Serial.println("C");
+  //
+  //  Serial.println("");
   //  if (temperature > tempThreshold) {
   //    // if we're above the tempThreshold, send the text message
   //    sendText();
   //  }
   // Run the loop once per second
   client.begin();
-
   while (client.connected()) {
-    Serial.print("Sending hello ");
+    // check current temperature
+    sensors.requestTemperatures();
+    // get the temperature
+    temperature = sensors.getTempCByIndex(0);
+    Serial.print("Sending data ");
     // send a hello #
     client.beginMessage(TYPE_TEXT);
-    client.print("hello LAB1");
+    client.print(temperature);
     client.endMessage();
 
     // check if a message is available to be received
@@ -197,8 +194,8 @@ void loop() {
       Serial.println("Received a message:");
       Serial.println(client.readString());
     }
-    // wait 5 seconds
-    delay(5000);
+    delay(1000);
   }
+  Serial.println("Disconnected");
   delay(1000);
 }
