@@ -80,12 +80,12 @@ int lcd_d6 = 7;
 int lcd_d7 = 8;
 
 LiquidCrystal lcd(
-  3, // Arduino pin connected to RS pin on LCD
-  4, // Arduino pin connected to Enable pin on LCD
-  5, // 5-8 Arduino pins connected to D4-D7 on LCD
-  6,
-  7,
-  8
+  lcd_rs, // Arduino pin connected to RS pin on LCD
+  lcd_e, // Arduino pin connected to Enable pin on LCD
+  lcd_d4, // 5-8 Arduino pins connected to D4-D7 on LCD
+  lcd_d5,
+  lcd_d6,
+  lcd_d7
 );
 
 void connectWifi() {
@@ -182,6 +182,8 @@ void loop() {
     sensors.requestTemperatures();
     // get the temperature
     temperature = sensors.getTempCByIndex(0);
+    Serial.print("Serial Monitor: Temp: ");
+    Serial.println(temperature);
     Serial.print("Sending data ");
     // send a hello #
     client.beginMessage(TYPE_TEXT);
