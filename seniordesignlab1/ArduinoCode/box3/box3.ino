@@ -46,6 +46,8 @@
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
+boolean isConnectedToSerial = false;
+
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
 char *pass = SECRET_PASS; // network password - change to your wifi password
@@ -88,17 +90,75 @@ LiquidCrystal lcd(
   lcd_d7
 );
 
+///////////////////////////////////////////////////////////////
+// function: handleDisplay
+// purpose: move all code for the LCD into one function so that it doesn't crowd up more important logic
+// parameters: int state - allows the LCD to differentiate between states of the arduino system
+//             0: Default state. System is running properly and we just need to display temperature readings
+//             1: Wifi is connecting. Display that wifi is connecting
+//             2:
+void handleDisplay(int state)
+{
+  // clear lcd so new data can be displayed
+  lcd.clear();
+
+  switch (state)
+  {
+    // default state: display temperature (unless sensor is not connected)
+    case 0:
+      // Detect if no temperature sensor is connected
+      if (temperature == noSensorTemp) {
+        // no sensor was detected
+        lcd.print("Sensor unplugged");
+        lcd.setCursor(0, 1);
+        lcd.print("or damaged");
+        lcd.setCursor(0, 0);
+      }
+      else
+      {
+        lcd.print("Temp: ");
+        lcd.print(temperature);
+        lcd.print((char)223);
+        lcd.print("C");
+      }
+      break;
+    // Connecting to wifi:
+    case 1:
+      lcd.print("Connecting");
+      lcd.setCursor(0,1);
+      lcd.print("to WiFi");
+      lcd.setCursor(0,0);
+      break;
+    // Wifi module is damaged or missing
+    case 2:
+      lcd.print("No WiFi");
+      lcd.setCursor(0,1);
+      lcd.print("Module Detected");
+      lcd.setCursor(0,0);
+      break;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// function: connectWifi
+// purpose: connect the IoT device to a wifi network
 void connectWifi() {
-  // connects the IoT device to the wifi
+  
+  handleDisplay(1);
+  
   while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to wifi network: ");
-    Serial.println(ssid);
+    if(isConnectedToSerial){
+      Serial.print("Attempting to connect to wifi network: ");
+      Serial.println(ssid);
+    }
     status = WiFi.begin(ssid, pass); // this function from the WiFi library does the work
     // wait a second for connection
     delay(1000);
   }
-  Serial.println("Connected");
-  printStatus();
+  if(isConnectedToSerial){
+    Serial.println("Connected");
+    printStatus();
+  }
 }
 
 void printStatus() {
@@ -111,12 +171,17 @@ void printStatus() {
   Serial.println(WiFi.localIP());
 }
 
-
+///////////////////////////////////////////////////////////////
+// function: setup
+// purpose: contains code that needs to be run only once on 
+//          startup
 void setup() {
   // Start the serial port with 9600 baud rate
-  Serial.begin(9600);
-  while (!Serial) {
+  if(isConnectedToSerial){
+    Serial.begin(9600);
+    while (!Serial) {
     ; // wait for serial port to connect
+    }
   }
 
   // start the lcd
@@ -124,10 +189,15 @@ void setup() {
 
   // Check for the WiFi
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("The wifi module isn't working");
+    if(isConnectedToSerial){
+      Serial.println("The wifi module isn't working");
+    }
+    else{
+      handleDisplay(2);
+    }
     while (true);
   }
-
+  
   connectWifi();
 
   // after wifi is set up, set up temperature sensor
@@ -148,22 +218,11 @@ void setup() {
 //  Serial.println(msg.message);
 //}
 
+///////////////////////////////////////////////////////////////
+// function: loop
+// purpose: contains code to be run over and over while the arduino
+//          is powered on
 void loop() {
-  // Print to LCD
-  lcd.clear();
-  if (temperature == noSensorTemp) {
-    // no sensor was detected
-    lcd.print("Sensor unplugged");
-    lcd.setCursor(0, 1);
-    lcd.print("or damaged");
-    lcd.setCursor(0, 0);
-  }
-  else {
-    lcd.print("Temp: ");
-    lcd.print(temperature);
-    lcd.print((char)223);
-    lcd.print("C");
-  }
 
   // Turn the below logging on if you don't have the screen connected
   //  Serial.print(temperature);
@@ -175,16 +234,20 @@ void loop() {
   //    // if we're above the tempThreshold, send the text message
   //    sendText();
   //  }
-  // Run the loop once per second
+
   client.begin();
   while (client.connected()) {
+    handleDisplay(0);
     // check current temperature
     sensors.requestTemperatures();
     // get the temperature
     temperature = sensors.getTempCByIndex(0);
-    Serial.print("Serial Monitor: Temp: ");
-    Serial.println(temperature);
-    Serial.print("Sending data ");
+    if(isConnectedToSerial)
+    {
+      Serial.print("Serial Monitor: Temp: ");
+      Serial.println(temperature);
+      Serial.print("Sending data "); 
+    }
     // send a hello #
     client.beginMessage(TYPE_TEXT);
     client.print(temperature);
@@ -192,12 +255,14 @@ void loop() {
 
     // check if a message is available to be received
     int messageSize = client.parseMessage();
-    if (messageSize > 0) {
+    if (messageSize > 0 && isConnectedToSerial) {
       Serial.println("Received a message:");
       Serial.println(client.readString());
     }
     delay(1000);
   }
-  Serial.println("Disconnected");
+  if(isConnectedToSerial){
+    Serial.println("Disconnected");
+  }
   delay(1000);
 }
