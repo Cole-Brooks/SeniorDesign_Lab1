@@ -24,6 +24,10 @@
    d10:
    d11:
    d12:
+
+   Secrets.h:
+    note that you'll need to update that file before this works on your setup
+    CLOUD SERVER IP = "172.105.154.86"
 */
 
 // Serial port interface. Download this
@@ -46,7 +50,7 @@
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
-boolean isConnectedToSerial = false;
+boolean debugOn = false;
 
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
@@ -147,7 +151,7 @@ void connectWifi() {
   handleDisplay(1);
   
   while (status != WL_CONNECTED) {
-    if(isConnectedToSerial){
+    if(debugOn){
       Serial.print("Attempting to connect to wifi network: ");
       Serial.println(ssid);
     }
@@ -155,7 +159,7 @@ void connectWifi() {
     // wait a second for connection
     delay(1000);
   }
-  if(isConnectedToSerial){
+  if(debugOn){
     Serial.println("Connected");
     printStatus();
   }
@@ -177,11 +181,11 @@ void printStatus() {
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
-  if(isConnectedToSerial){
+  if(debugOn){
     Serial.begin(9600);
-    while (!Serial) {
-    ; // wait for serial port to connect
-    }
+//    while (!Serial) {
+//    ; // wait for serial port to connect
+//    }
   }
 
   // start the lcd
@@ -189,7 +193,7 @@ void setup() {
 
   // Check for the WiFi
   if (WiFi.status() == WL_NO_MODULE) {
-    if(isConnectedToSerial){
+    if(debugOn){
       Serial.println("The wifi module isn't working");
     }
     else{
@@ -242,7 +246,7 @@ void loop() {
     sensors.requestTemperatures();
     // get the temperature
     temperature = sensors.getTempCByIndex(0);
-    if(isConnectedToSerial)
+    if(debugOn)
     {
       Serial.print("Serial Monitor: Temp: ");
       Serial.println(temperature);
@@ -255,13 +259,13 @@ void loop() {
 
     // check if a message is available to be received
     int messageSize = client.parseMessage();
-    if (messageSize > 0 && isConnectedToSerial) {
+    if (messageSize > 0 && debugOn) {
       Serial.println("Received a message:");
       Serial.println(client.readString());
     }
     delay(1000);
   }
-  if(isConnectedToSerial){
+  if(debugOn){
     Serial.println("Disconnected");
   }
   delay(1000);
