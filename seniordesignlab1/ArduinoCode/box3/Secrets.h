@@ -1,4 +1,4 @@
-#define SECRET_SSID "Golden Legendary"
-#define SECRET_PASS "ZJCZHY2000"
-#define SERVER_IP "192.168.0.125"
+#define SECRET_SSID "1015 Kirkwood"
+#define SECRET_PASS "Bentley2021"
+#define SERVER_IP "172.105.154.86"
 #define SERVER_PORT 3000
