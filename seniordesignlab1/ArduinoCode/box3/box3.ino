@@ -20,7 +20,7 @@
    d6: LCD D5
    d7: LCD D6
    d8: LCD D7
-   d9:
+   d9: relay data pin
    d10:
    d11:
    d12:
@@ -50,7 +50,7 @@
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
-boolean debugOn = false;
+boolean debugOn = true;
 
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
@@ -93,6 +93,13 @@ LiquidCrystal lcd(
   lcd_d6,
   lcd_d7
 );
+
+// relay stuff
+int relay_pin = 9;
+boolean relayState = false; // relayState refers to if the relay is triggered. False means the screen is off, true means the screen is on
+
+// button stuff
+int button_pin = 10;
 
 ///////////////////////////////////////////////////////////////
 // function: handleDisplay
@@ -176,17 +183,39 @@ void printStatus() {
 }
 
 ///////////////////////////////////////////////////////////////
+// function: toggleRelay
+// purpose: function that will toggle the relay. Note that the state
+//          of the relay can be accessed by the relayState variable
+//  
+void toggleRelay(){
+  if(relayState){
+    digitalWrite(relay_pin, LOW);
+    relayState = false;
+  }
+  else{
+    digitalWrite(relay_pin, HIGH);
+    relayState = true;
+  }
+  Serial.println("State: " + relayState);
+}
+
+///////////////////////////////////////////////////////////////
 // function: setup
 // purpose: contains code that needs to be run only once on 
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
-  if(debugOn){
+  digitalWrite(12, LOW);
+  if(true){
     Serial.begin(9600);
 //    while (!Serial) {
 //    ; // wait for serial port to connect
 //    }
   }
+
+  // Create interrupt for pushbutton
+  pinMode(button_pin, INPUT_PULLUP);
+//  attachInterrupt(digitalPinToInterrupt(button_pin), button_ISR, LOW);
 
   // start the lcd
   lcd.begin(16, 2);
@@ -241,6 +270,7 @@ void loop() {
 
   client.begin();
   while (client.connected()) {
+    toggleRelay();
     handleDisplay(0);
     // check current temperature
     sensors.requestTemperatures();
