@@ -1,42 +1,38 @@
-<HTML>
-<HEAD>
-<TITLE>Temperature Monitor</TITLE>
-</HEAD>
-<BODY BGCOLOR="FFFFFF">
-<H1>Very Simple Website</H1>
-<H2>All it will do is display the latest temperature</H2>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Getting Started with Chart JS with www.chartjs3.com</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <div class="chartCard">
+      <div id="chartBox1" class="chartBox1">
+        <button onclick="toFarenheight()">Farenheight</button>
+        <canvas id="myChart1"></canvas>        
+      </div>
 
-<div class="container">
-	<div>
-		<p id="changeText">Temperature: Not yet received from Server</p>
-	</div>
-</div>
-</BODY>
+      <div id="chartBox2" class="chartBox2">
+        <button onclick="toCelsius()">Celsius</button>
+        <canvas id="myChart2"></canvas>        
+      </div>
+      
+    </div>
 
-<script>
-	var temps; // array storing the database
 
-	// this function is what runs every second
-	var intervalId = window.setInterval(function(){
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-		// load the database into temps every second
-		fetch('./db.json')
-			.then(response => response.json())
-			.then(json => temps = json);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" 
+    integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		// logs the newest temperature to the console
-		console.log(temps['_default'][Object.keys(temps['_default']).length]['message'])
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js" 
+    integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		// logs the entire database to the console
-		// console.log(temps)
+    <script src="app.js"></script>
 
-		// Select the div we want to update
-		let div = document.querySelector('#changeText')
+  </body>
+</html>
 
-		// make the html page show the last temp added to db
-		div.innerText = "Temperature: " + temps['_default'][Object.keys(temps['_default']).length]['message'];
-	}, 1000);
-
-</script>
-
-</HTML>
