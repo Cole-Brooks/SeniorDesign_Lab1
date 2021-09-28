@@ -34,8 +34,6 @@
 #include <SPI.h>
 // Wifi library. Also necessary.
 #include <WiFiNINA.h>
-// Email sender
-//#include <EMailSender.h>
 // Temp Sensor Libraries
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -50,7 +48,7 @@
 #define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
-boolean debugOn = true;
+boolean debugOn = false;
 
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
@@ -60,14 +58,6 @@ char *serverAddress = SERVER_IP;
 int port = SERVER_PORT;
 WiFiClient wifi;
 WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
-
-
-//// Email info - don't touch this. This is where emails will come from
-//char eMailUser[] = "lab1texter@gmail.com";
-//char eMailPass[] = "hitupwxqkxavkvza";
-//// Recipient email/phone number. Change this so you don't spam me :)
-//char eMailRecipient[] = "lab1texter@gmail.com"; // currently set to same email that sends them for testing
-//char phoneRecipient[] = "7125415271@email.uscc.net"; // message me if you need help figuring this out
 
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
@@ -237,40 +227,20 @@ void setup() {
   //  numberSensors = sensors.getDeviceCount();
 }
 
-//void sendText() {
-//  char senderName[] = "lab1texter";
-//  EMailSender emailSend(eMailUser, eMailPass, eMailUser, senderName);
-//  EMailSender::EMailMessage msg;
-//  EMailSender::Response resp;
-//  Serial.println("sending text...");
-//  msg.subject = "TEMP ALERT";
-//  msg.message = "Temperature detected was too high! Temp: " + String(temperature, 3);
-//  //  resp = emailSend.send(phoneRecipient, msg);
-//  resp = emailSend.send(eMailRecipient, msg);
-//  Serial.println("Sending status: ");
-//  Serial.println(msg.message);
-//}
-
 ///////////////////////////////////////////////////////////////
 // function: loop
 // purpose: contains code to be run over and over while the arduino
 //          is powered on
 void loop() {
-
   // Turn the below logging on if you don't have the screen connected
   //  Serial.print(temperature);
   //  Serial.print((char)176);
   //  Serial.println("C");
   //
   //  Serial.println("");
-  //  if (temperature > tempThreshold) {
-  //    // if we're above the tempThreshold, send the text message
-  //    sendText();
-  //  }
 
   client.begin();
   while (client.connected()) {
-    toggleRelay();
     handleDisplay(0);
     // check current temperature
     sensors.requestTemperatures();
@@ -289,9 +259,13 @@ void loop() {
 
     // check if a message is available to be received
     int messageSize = client.parseMessage();
+    
     if (messageSize > 0 && debugOn) {
       Serial.println("Received a message:");
-      Serial.println(client.readString());
+    }
+    
+    if(client.readString() == "HTTP:TOGGLE"){
+      toggleRelay();
     }
     delay(1000);
   }
