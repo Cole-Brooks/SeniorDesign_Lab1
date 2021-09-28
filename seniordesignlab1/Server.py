@@ -3,27 +3,36 @@ import os
 from http.server import HTTPServer, CGIHTTPRequestHandler
 import asyncio
 import websockets
-from tinydb import TinyDB, Query
 
-db = TinyDB('db.json')
-PORT = 3000
+PORT = 3001
+lastTemp = None
 
 print("Starting server, port number is " + str(PORT))
 
-def insert(msg):
-	db.insert({'message': msg})
+async def handleHttp(websocket, path, message):
+	global lastTemp
+	print("Received Message from HTTP server")
+	await websocket.send(str(lastTemp))
 
-async def echo(websocket, path):
+async def handleWS(websocket, path, message):
+	global lastTemp
+	lastTemp = message
+	print("Recieved message from client: " + message)
+	await websocket.send("Data Recieved")
+
+async def routeConnection(websocket, path):
     print("a client just connected")
     try:
         async for message in websocket:
-            print("Recieved message from client: " + message)
-            insert(message)
-            await websocket.send("Data Recieved")
+            if message[0:5] == "HTTP:":
+            	await handleHttp(websocket, path, message)
+            else:
+            	await handleWS(websocket, path, message)
+
     except websockets.exceptions.ConnectionClosed as e:
         print("A client just disconnected")
 
-server = websockets.serve(echo, "192.168.0.64", PORT)
+server = websockets.serve(routeConnection, "192.168.0.64", PORT)
 
 asyncio.get_event_loop().run_until_complete(server)
 asyncio.get_event_loop().run_forever()
