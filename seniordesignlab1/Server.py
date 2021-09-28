@@ -6,28 +6,41 @@ import websockets
 
 PORT = 3001
 lastTemp = None
+shouldToggle = False
 
 print("Starting server, port number is " + str(PORT))
 
 async def handleHttp(websocket, path, message):
-	global lastTemp
-	print("Received Message from HTTP server")
-	await websocket.send(str(lastTemp))
+    global lastTemp, shouldToggle
+    if(message == "HTTP:TOGGLE"):
+        shouldToggle = True
+    elif lastTemp == None:
+        await websocket.send("NONE")
+    else:
+        print("Received Message from HTTP server")
+        temp = lastTemp
+        lastTemp = None
+        await websocket.send(str(temp))
+    
 
 async def handleWS(websocket, path, message):
-	global lastTemp
-	lastTemp = message
-	print("Recieved message from client: " + message)
-	await websocket.send("Data Recieved")
+    global lastTemp, shouldToggle
+    lastTemp = message
+    print("Recieved message from client: " + message)
+    if shouldToggle:
+        await websocket.send("HTTP:TOGGLE")
+        shouldToggle = False
+    else:
+        await websocket.send("Data Received")
 
 async def routeConnection(websocket, path):
     print("a client just connected")
     try:
         async for message in websocket:
             if message[0:5] == "HTTP:":
-            	await handleHttp(websocket, path, message)
+                await handleHttp(websocket, path, message)
             else:
-            	await handleWS(websocket, path, message)
+                await handleWS(websocket, path, message)
 
     except websockets.exceptions.ConnectionClosed as e:
         print("A client just disconnected")

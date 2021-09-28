@@ -1,40 +1,37 @@
 <!doctype html>
-<HTML>
-<HEAD>
-<TITLE>Temperature Monitor</TITLE>
-</HEAD>
-<BODY BGCOLOR="FFFFFF">
-<H1>Very Simple Website</H1>
-<H2>All it will do is display the latest temperature</H2>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Getting Started with Chart JS with www.chartjs3.com</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <div class="chartCard">
+      <div id="chartBox1" class="chartBox1">
+        <button onclick="toFarenheight()">Farenheight</button>
+        <button onclick="turnOnDisplay()">Turn on Display</button>
+        <canvas id="myChart1"></canvas>        
+      </div>
 
-<div class="container">
-	<div>
-		<p id="changeText">Temperature: Not yet received from Server</p>
-	</div>
-</div>
-<script src="server.js"></script>
-</BODY>
+      <div id="chartBox2" class="chartBox2">
+        <button onclick="toCelsius()">Celsius</button>
+        <canvas id="myChart2"></canvas>        
+      </div>
+      
+    </div>
 
-<script>
-	let url = "ws://192.168.0.64:3001";
-	var ws = new WebSocket(url);
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-	// this function is what runs every second
-	var intervalId = window.setInterval(function(){
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" 
+    integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		ws.send("HTTP:");
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js" 
+    integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-	}, 1000);
+    <script src="app.js"></script>
 
-	ws.onopen = function(){
-		console.log("Socket Opened");
-	};
-	ws.onmessage= function(s) {
-    	console.log(s)
-    	let div = document.querySelector('#changeText')
-    	div.innerText = "Temperature: " + s.data;
-	};
-
-
-</script>
-</HTML>
+  </body>
+</html>
