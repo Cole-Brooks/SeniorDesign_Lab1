@@ -126,16 +126,16 @@ void handleDisplay(int state)
     // Connecting to wifi:
     case 1:
       lcd.print("Connecting");
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print("to WiFi");
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       break;
     // Wifi module is damaged or missing
     case 2:
       lcd.print("No WiFi");
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print("Module Detected");
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       break;
   }
 }
@@ -144,11 +144,11 @@ void handleDisplay(int state)
 // function: connectWifi
 // purpose: connect the IoT device to a wifi network
 void connectWifi() {
-  
+
   handleDisplay(1);
-  
+
   while (status != WL_CONNECTED) {
-    if(debugOn){
+    if (debugOn) {
       Serial.print("Attempting to connect to wifi network: ");
       Serial.println(ssid);
     }
@@ -156,7 +156,7 @@ void connectWifi() {
     // wait a second for connection
     delay(1000);
   }
-  if(debugOn){
+  if (debugOn) {
     Serial.println("Connected");
     printStatus();
   }
@@ -176,13 +176,13 @@ void printStatus() {
 // function: toggleRelay
 // purpose: function that will toggle the relay. Note that the state
 //          of the relay can be accessed by the relayState variable
-//  
-void toggleRelay(){
-  if(relayState){
+//
+void toggleRelay() {
+  if (relayState) {
     digitalWrite(relay_pin, LOW);
     relayState = false;
   }
-  else{
+  else {
     digitalWrite(relay_pin, HIGH);
     relayState = true;
   }
@@ -191,36 +191,36 @@ void toggleRelay(){
 
 ///////////////////////////////////////////////////////////////
 // function: setup
-// purpose: contains code that needs to be run only once on 
+// purpose: contains code that needs to be run only once on
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
   digitalWrite(12, LOW);
-  if(true){
+  if (true) {
     Serial.begin(9600);
-//    while (!Serial) {
-//    ; // wait for serial port to connect
-//    }
+    //    while (!Serial) {
+    //    ; // wait for serial port to connect
+    //    }
   }
 
   // Create interrupt for pushbutton
   pinMode(button_pin, INPUT_PULLUP);
-//  attachInterrupt(digitalPinToInterrupt(button_pin), button_ISR, LOW);
+  //  attachInterrupt(digitalPinToInterrupt(button_pin), button_ISR, LOW);
 
   // start the lcd
   lcd.begin(16, 2);
 
   // Check for the WiFi
   if (WiFi.status() == WL_NO_MODULE) {
-    if(debugOn){
+    if (debugOn) {
       Serial.println("The wifi module isn't working");
     }
-    else{
+    else {
       handleDisplay(2);
     }
     while (true);
   }
-  
+
   connectWifi();
 
   // after wifi is set up, set up temperature sensor
@@ -246,11 +246,11 @@ void loop() {
     sensors.requestTemperatures();
     // get the temperature
     temperature = sensors.getTempCByIndex(0);
-    if(debugOn)
+    if (debugOn)
     {
       Serial.print("Serial Monitor: Temp: ");
       Serial.println(temperature);
-      Serial.print("Sending data "); 
+      Serial.print("Sending data ");
     }
     // send a hello #
     client.beginMessage(TYPE_TEXT);
@@ -259,17 +259,17 @@ void loop() {
 
     // check if a message is available to be received
     int messageSize = client.parseMessage();
-    
+
     if (messageSize > 0 && debugOn) {
       Serial.println("Received a message:");
     }
-    
-    if(client.readString() == "HTTP:TOGGLE"){
+
+    if (client.readString() == "HTTP:TOGGLE") {
       toggleRelay();
     }
     delay(1000);
   }
-  if(debugOn){
+  if (debugOn) {
     Serial.println("Disconnected");
   }
   delay(1000);

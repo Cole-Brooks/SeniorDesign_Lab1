@@ -128,7 +128,7 @@
         document.getElementById("chartBox1").style.display = "block";
     }
 
-    let url = "ws://192.168.0.64:3001";
+    let url = "ws://192.168.125:3001";
     var ws = new WebSocket(url);
 
     // this function is what runs every second
@@ -160,6 +160,17 @@
     function turnOnDisplay(){
       ws.send("HTTP:TOGGLE")
     }
+    
+    // https://www.youtube.com/watch?v=lThuZY0-S_8&ab_channel=Telusko
+    var alertsPhoneNum = "3193839547"
+    
+    function setPhoneNum() {
+      alertsPhoneNum = document.getElementById("userPhoneNum").value;
+      ws.send("HTTP:NUMBER" + alertsPhoneNum);
+    }
+
+    
+
 
     //test func - rand temp generator
     // setInterval(function(){   
