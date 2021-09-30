@@ -156,7 +156,6 @@ void handleDisplay(int state)
 void connectWifi() {
   
   handleDisplay(1);
-  
   while (status != WL_CONNECTED) {
     if(debugOn){
       Serial.print("Attempting to connect to wifi network: ");
@@ -164,7 +163,8 @@ void connectWifi() {
     }
     status = WiFi.begin(ssid, pass); // this function from the WiFi library does the work
     // wait a second for connection
-    delay(1000);
+    Serial.println("WiFi Status: " + String(status));
+    delay(750);
   }
   if(debugOn){
     Serial.println("Connected");

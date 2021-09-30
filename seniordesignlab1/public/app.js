@@ -23,7 +23,7 @@ var x = Array.from(Array(300 + 1).keys()).slice(1);
     options: {
       scales: {
         y: {
-          min: 10,
+          min: -20,
           max: 50,
         },
         x:{
@@ -37,19 +37,22 @@ var x = Array.from(Array(300 + 1).keys()).slice(1);
       plugins: {
           zoom: {
               limits:{
-                  y: {min: 10, max: 50}
+                  y: {min: -200, max: 200}
               },
               pan:{
                   enabled: true,
-                  mode: 'xy'
+                  mode: 'y',
+                  limits:{
+                    y:{min:-200, max:200}
+                  }
               },
               zoom: {
-                  mode: 'xy',
+                  mode: 'y',
                   wheel: {
                       enabled: true,
                   },
                   drag: {
-                    enabled: true,
+                    enabled: false,
                   }
 
               }
