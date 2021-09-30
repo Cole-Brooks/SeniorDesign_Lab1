@@ -241,6 +241,14 @@ void loop() {
   int startTime = millis();
   if(Firebase.setFloat(firebaseData, "Temp", temperature) && Firebase.setInt(firebaseData, "Time", millis())){
     Serial.println("Sending to firebase: success");
+
+    if(!Firebase.pushFloat(firebaseData, "PreviousTemps", temperature)){
+      // old temps are stored in chronological order in PreviousTemps node
+      // if we weren't able to push the data to that node log it to console
+      // we shouldn't really ever get to this state except in cases of wifi
+      // dropout
+      Serial.println("Data was sent, but not stored in previous data...");
+    }
   }
   else{
     Serial.println("Sending to firebase: failure");
