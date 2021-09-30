@@ -20,7 +20,7 @@
    d6: LCD D5
    d7: LCD D6
    d8: LCD D7
-   d9:
+   d9: relay data pin
    d10:
    d11:
    d12:
@@ -30,12 +30,15 @@
     CLOUD SERVER IP = "172.105.154.86"
 */
 
+// Firebase Libraries
+#include "Firebase_Arduino_WiFiNINA.h"
+#define FIREBASE_HOST "arduinotempsensor-22a0f-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "T1ZZxRRSEU6Sfbzf2uXSIXEeL6jv07mwINAaNjXc"
+#include <ArduinoJson.h>
 // Serial port interface. Download this
 #include <SPI.h>
 // Wifi library. Also necessary.
 #include <WiFiNINA.h>
-// Email sender
-//#include <EMailSender.h>
 // Temp Sensor Libraries
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -47,10 +50,12 @@
 #include <ArduinoHttpClient.h>
 //https://github.com/arduino-libraries/ArduinoHttpClient/blob/master/examples/SimpleWebSocket/SimpleWebSocket.ino
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 2
+#define ONE_WIRE_BUS 12
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
-boolean debugOn = false;
+#define DEVICE_ID "TestDevice"
+
+boolean debugOn = true;
 
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
@@ -61,14 +66,6 @@ int port = SERVER_PORT;
 WiFiClient wifi;
 WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
 
-
-//// Email info - don't touch this. This is where emails will come from
-//char eMailUser[] = "lab1texter@gmail.com";
-//char eMailPass[] = "hitupwxqkxavkvza";
-//// Recipient email/phone number. Change this so you don't spam me :)
-//char eMailRecipient[] = "lab1texter@gmail.com"; // currently set to same email that sends them for testing
-//char phoneRecipient[] = "7125415271@email.uscc.net"; // message me if you need help figuring this out
-
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
@@ -76,6 +73,12 @@ int tempThreshold = 30; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CUR
 //int numberSensors;
 float temperature;
 float noSensorTemp = -127.00;
+
+// Database Objects
+FirebaseData firebaseData;
+//String path = "/TempData";
+String currentTempPath = "currentTemp";
+//String previousTemps = path + "/previousTemps";
 
 // Display Objects
 int lcd_rs = 3;
@@ -93,6 +96,10 @@ LiquidCrystal lcd(
   lcd_d6,
   lcd_d7
 );
+
+// relay stuff
+int relay_pin = 9;
+boolean relayState = false; // relayState refers to if the relay is triggered. False means the screen is off, true means the screen is on
 
 ///////////////////////////////////////////////////////////////
 // function: handleDisplay
@@ -176,17 +183,29 @@ void printStatus() {
 }
 
 ///////////////////////////////////////////////////////////////
+// function: toggleRelay
+// purpose: function that will toggle the relay. Note that the state
+//          of the relay can be accessed by the relayState variable
+//  
+void toggleRelay(){
+  if(relayState){
+    digitalWrite(relay_pin, LOW);
+    relayState = false;
+  }
+  else{
+    digitalWrite(relay_pin, HIGH);
+    relayState = true;
+  }
+  Serial.println("State: " + relayState);
+}
+
+///////////////////////////////////////////////////////////////
 // function: setup
 // purpose: contains code that needs to be run only once on 
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
-  if(debugOn){
-    Serial.begin(9600);
-//    while (!Serial) {
-//    ; // wait for serial port to connect
-//    }
-  }
+  Serial.begin(9600);
 
   // start the lcd
   lcd.begin(16, 2);
@@ -204,69 +223,40 @@ void setup() {
   
   connectWifi();
 
-  // after wifi is set up, set up temperature sensor
-  //  numberSensors = sensors.getDeviceCount();
+  // After the wifi is connected, setup Firebase Connection
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, SECRET_SSID, SECRET_PASS);
+  Firebase.reconnectWiFi(true);
 }
-
-//void sendText() {
-//  char senderName[] = "lab1texter";
-//  EMailSender emailSend(eMailUser, eMailPass, eMailUser, senderName);
-//  EMailSender::EMailMessage msg;
-//  EMailSender::Response resp;
-//  Serial.println("sending text...");
-//  msg.subject = "TEMP ALERT";
-//  msg.message = "Temperature detected was too high! Temp: " + String(temperature, 3);
-//  //  resp = emailSend.send(phoneRecipient, msg);
-//  resp = emailSend.send(eMailRecipient, msg);
-//  Serial.println("Sending status: ");
-//  Serial.println(msg.message);
-//}
 
 ///////////////////////////////////////////////////////////////
 // function: loop
 // purpose: contains code to be run over and over while the arduino
 //          is powered on
 void loop() {
+  sensors.requestTemperatures();
+  temperature = sensors.getTempCByIndex(0);
+  
+  handleDisplay(0);
 
-  // Turn the below logging on if you don't have the screen connected
-  //  Serial.print(temperature);
-  //  Serial.print((char)176);
-  //  Serial.println("C");
-  //
-  //  Serial.println("");
-  //  if (temperature > tempThreshold) {
-  //    // if we're above the tempThreshold, send the text message
-  //    sendText();
-  //  }
-
-  client.begin();
-  while (client.connected()) {
-    handleDisplay(0);
-    // check current temperature
-    sensors.requestTemperatures();
-    // get the temperature
-    temperature = sensors.getTempCByIndex(0);
-    if(debugOn)
-    {
-      Serial.print("Serial Monitor: Temp: ");
-      Serial.println(temperature);
-      Serial.print("Sending data "); 
-    }
-    // send a hello #
-    client.beginMessage(TYPE_TEXT);
-    client.print(temperature);
-    client.endMessage();
-
-    // check if a message is available to be received
-    int messageSize = client.parseMessage();
-    if (messageSize > 0 && debugOn) {
-      Serial.println("Received a message:");
-      Serial.println(client.readString());
-    }
-    delay(1000);
+  int startTime = millis();
+  if(Firebase.setFloat(firebaseData, "Temp", temperature) && Firebase.setInt(firebaseData, "Time", millis())){
+    Serial.println("Sending to firebase: success");
   }
-  if(debugOn){
-    Serial.println("Disconnected");
+  else{
+    Serial.println("Sending to firebase: failure");
   }
-  delay(1000);
+  Serial.print("Firebase Time To Write: ");
+  float ttw = (millis() - startTime) / 1000;
+  Serial.println(String(ttw));
+  Serial.print("Wifi Status: ");
+  Serial.println(WiFi.status());
+
+  // check if we need to toggle the display
+  if(Firebase.getInt(firebaseData, "ToggleDisplay")){
+    int toggleVal = firebaseData.intData();
+    if(toggleVal == 1){
+      toggleRelay();
+      Firebase.setInt(firebaseData, "ToggleDisplay", 0);
+    }
+  }
 }
