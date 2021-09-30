@@ -142,6 +142,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let app = firebase.app();
         let db = firebase.database();
 
+        // first, update the y array to contain the real data from firebase
+        var PrevTemps = db.ref().child('PreviousTemps');
+        PrevTemps.once('value', function(snap){
+          snap.forEach(function(item){
+            var itemVal = item.val();
+            y.shift();
+            y.push(itemVal);
+          });
+        });
+
         var db_temp = db.ref('Temp/');
         var db_time = db.ref('Time/');
 
