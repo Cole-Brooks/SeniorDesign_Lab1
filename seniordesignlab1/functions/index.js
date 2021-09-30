@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+// const functions = require("firebase-functions");
 // The Firebase Admin SDK to access Real Time Database.
 // const admin = require('firebase-admin');
 // admin.initializeApp();
