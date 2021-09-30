@@ -30,6 +30,11 @@
     CLOUD SERVER IP = "172.105.154.86"
 */
 
+// Firebase Libraries
+#include "Firebase_Arduino_WiFiNINA.h"
+#define FIREBASE_HOST "arduinotempsensor-22a0f-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "T1ZZxRRSEU6Sfbzf2uXSIXEeL6jv07mwINAaNjXc"
+#include <ArduinoJson.h>
 // Serial port interface. Download this
 #include <SPI.h>
 // Wifi library. Also necessary.
@@ -45,10 +50,12 @@
 #include <ArduinoHttpClient.h>
 //https://github.com/arduino-libraries/ArduinoHttpClient/blob/master/examples/SimpleWebSocket/SimpleWebSocket.ino
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 2
+#define ONE_WIRE_BUS 12
 #define TEMPERATURE_PRECISION 9 // lower the precision.
 
-boolean debugOn = false;
+#define DEVICE_ID "TestDevice"
+
+boolean debugOn = true;
 
 // Wifi Information - You'll need to edit this
 char *ssid = SECRET_SSID; // network name - change to your wifi name
@@ -66,6 +73,12 @@ int tempThreshold = 30; // CHANGE THIS AFTER YOU'RE DONE TESTING BOARD, IT'S CUR
 //int numberSensors;
 float temperature;
 float noSensorTemp = -127.00;
+
+// Database Objects
+FirebaseData firebaseData;
+//String path = "/TempData";
+String currentTempPath = "currentTemp";
+//String previousTemps = path + "/previousTemps";
 
 // Display Objects
 int lcd_rs = 3;
@@ -87,9 +100,6 @@ LiquidCrystal lcd(
 // relay stuff
 int relay_pin = 9;
 boolean relayState = false; // relayState refers to if the relay is triggered. False means the screen is off, true means the screen is on
-
-// button stuff
-int button_pin = 10;
 
 ///////////////////////////////////////////////////////////////
 // function: handleDisplay
@@ -195,17 +205,7 @@ void toggleRelay(){
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
-  digitalWrite(12, LOW);
-  if(true){
-    Serial.begin(9600);
-//    while (!Serial) {
-//    ; // wait for serial port to connect
-//    }
-  }
-
-  // Create interrupt for pushbutton
-  pinMode(button_pin, INPUT_PULLUP);
-//  attachInterrupt(digitalPinToInterrupt(button_pin), button_ISR, LOW);
+  Serial.begin(9600);
 
   // start the lcd
   lcd.begin(16, 2);
@@ -223,8 +223,9 @@ void setup() {
   
   connectWifi();
 
-  // after wifi is set up, set up temperature sensor
-  //  numberSensors = sensors.getDeviceCount();
+  // After the wifi is connected, setup Firebase Connection
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, SECRET_SSID, SECRET_PASS);
+  Firebase.reconnectWiFi(true);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -232,45 +233,30 @@ void setup() {
 // purpose: contains code to be run over and over while the arduino
 //          is powered on
 void loop() {
-  // Turn the below logging on if you don't have the screen connected
-  //  Serial.print(temperature);
-  //  Serial.print((char)176);
-  //  Serial.println("C");
-  //
-  //  Serial.println("");
+  sensors.requestTemperatures();
+  temperature = sensors.getTempCByIndex(0);
+  
+  handleDisplay(0);
 
-  client.begin();
-  while (client.connected()) {
-    handleDisplay(0);
-    // check current temperature
-    sensors.requestTemperatures();
-    // get the temperature
-    temperature = sensors.getTempCByIndex(0);
-    if(debugOn)
-    {
-      Serial.print("Serial Monitor: Temp: ");
-      Serial.println(temperature);
-      Serial.print("Sending data "); 
-    }
-    // send a hello #
-    client.beginMessage(TYPE_TEXT);
-    client.print(temperature);
-    client.endMessage();
+  int startTime = millis();
+  if(Firebase.setFloat(firebaseData, "Temp", temperature) && Firebase.setInt(firebaseData, "Time", millis())){
+    Serial.println("Sending to firebase: success");
+  }
+  else{
+    Serial.println("Sending to firebase: failure");
+  }
+  Serial.print("Firebase Time To Write: ");
+  float ttw = (millis() - startTime) / 1000;
+  Serial.println(String(ttw));
+  Serial.print("Wifi Status: ");
+  Serial.println(WiFi.status());
 
-    // check if a message is available to be received
-    int messageSize = client.parseMessage();
-    
-    if (messageSize > 0 && debugOn) {
-      Serial.println("Received a message:");
-    }
-    
-    if(client.readString() == "HTTP:TOGGLE"){
+  // check if we need to toggle the display
+  if(Firebase.getInt(firebaseData, "ToggleDisplay")){
+    int toggleVal = firebaseData.intData();
+    if(toggleVal == 1){
       toggleRelay();
+      Firebase.setInt(firebaseData, "ToggleDisplay", 0);
     }
-    delay(1000);
   }
-  if(debugOn){
-    Serial.println("Disconnected");
-  }
-  delay(1000);
 }
