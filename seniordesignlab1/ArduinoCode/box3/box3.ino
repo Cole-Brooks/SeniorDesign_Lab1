@@ -32,8 +32,6 @@
 
 // Firebase Libraries
 #include "Firebase_Arduino_WiFiNINA.h"
-#define FIREBASE_HOST "arduinotempsensor-22a0f-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "T1ZZxRRSEU6Sfbzf2uXSIXEeL6jv07mwINAaNjXc"
 #include <ArduinoJson.h>
 // Serial port interface. Download this
 #include <SPI.h>
@@ -46,9 +44,6 @@
 #include <LiquidCrystal.h>
 // password info
 #include "Secrets.h"
-// websocket
-#include <ArduinoHttpClient.h>
-//https://github.com/arduino-libraries/ArduinoHttpClient/blob/master/examples/SimpleWebSocket/SimpleWebSocket.ino
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 12
 #define TEMPERATURE_PRECISION 9 // lower the precision.
@@ -61,10 +56,6 @@ boolean debugOn = true;
 char *ssid = SECRET_SSID; // network name - change to your wifi name
 char *pass = SECRET_PASS; // network password - change to your wifi password
 int status = WL_IDLE_STATUS;
-char *serverAddress = SERVER_IP;
-int port = SERVER_PORT;
-WiFiClient wifi;
-WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
 
 // Temp Sensor objects
 OneWire oneWire(ONE_WIRE_BUS);
@@ -136,16 +127,16 @@ void handleDisplay(int state)
     // Connecting to wifi:
     case 1:
       lcd.print("Connecting");
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print("to WiFi");
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       break;
     // Wifi module is damaged or missing
     case 2:
       lcd.print("No WiFi");
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print("Module Detected");
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       break;
   }
 }
@@ -154,11 +145,11 @@ void handleDisplay(int state)
 // function: connectWifi
 // purpose: connect the IoT device to a wifi network
 void connectWifi() {
-  
+
   handleDisplay(1);
-  
+
   while (status != WL_CONNECTED) {
-    if(debugOn){
+    if (debugOn) {
       Serial.print("Attempting to connect to wifi network: ");
       Serial.println(ssid);
     }
@@ -166,7 +157,7 @@ void connectWifi() {
     // wait a second for connection
     delay(1000);
   }
-  if(debugOn){
+  if (debugOn) {
     Serial.println("Connected");
     printStatus();
   }
@@ -186,13 +177,13 @@ void printStatus() {
 // function: toggleRelay
 // purpose: function that will toggle the relay. Note that the state
 //          of the relay can be accessed by the relayState variable
-//  
-void toggleRelay(){
-  if(relayState){
+//
+void toggleRelay() {
+  if (relayState) {
     digitalWrite(relay_pin, LOW);
     relayState = false;
   }
-  else{
+  else {
     digitalWrite(relay_pin, HIGH);
     relayState = true;
   }
@@ -201,7 +192,7 @@ void toggleRelay(){
 
 ///////////////////////////////////////////////////////////////
 // function: setup
-// purpose: contains code that needs to be run only once on 
+// purpose: contains code that needs to be run only once on
 //          startup
 void setup() {
   // Start the serial port with 9600 baud rate
@@ -212,15 +203,15 @@ void setup() {
 
   // Check for the WiFi
   if (WiFi.status() == WL_NO_MODULE) {
-    if(debugOn){
+    if (debugOn) {
       Serial.println("The wifi module isn't working");
     }
-    else{
+    else {
       handleDisplay(2);
     }
     while (true);
   }
-  
+
   connectWifi();
 
   // After the wifi is connected, setup Firebase Connection
@@ -235,14 +226,14 @@ void setup() {
 void loop() {
   sensors.requestTemperatures();
   temperature = sensors.getTempCByIndex(0);
-  
-  handleDisplay(0);
 
+  handleDisplay(0);
+  Serial.println(temperature);
   int startTime = millis();
-  if(Firebase.setFloat(firebaseData, "Temp", temperature) && Firebase.setInt(firebaseData, "Time", millis())){
+  if (Firebase.setFloat(firebaseData, "Temp", temperature) && Firebase.setInt(firebaseData, "Time", millis())) {
     Serial.println("Sending to firebase: success");
 
-    if(!Firebase.pushFloat(firebaseData, "PreviousTemps", temperature)){
+    if (!Firebase.pushFloat(firebaseData, "PreviousTemps", temperature)) {
       // old temps are stored in chronological order in PreviousTemps node
       // if we weren't able to push the data to that node log it to console
       // we shouldn't really ever get to this state except in cases of wifi
@@ -250,7 +241,7 @@ void loop() {
       Serial.println("Data was sent, but not stored in previous data...");
     }
   }
-  else{
+  else {
     Serial.println("Sending to firebase: failure");
   }
   Serial.print("Firebase Time To Write: ");
@@ -260,9 +251,9 @@ void loop() {
   Serial.println(WiFi.status());
 
   // check if we need to toggle the display
-  if(Firebase.getInt(firebaseData, "ToggleDisplay")){
+  if (Firebase.getInt(firebaseData, "ToggleDisplay")) {
     int toggleVal = firebaseData.intData();
-    if(toggleVal == 1){
+    if (toggleVal == 1) {
       toggleRelay();
       Firebase.setInt(firebaseData, "ToggleDisplay", 0);
     }

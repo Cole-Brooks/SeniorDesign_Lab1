@@ -1,4 +1,4 @@
-#define SECRET_SSID "1015 Kirkwood"
-#define SECRET_PASS "Bentley2021"
-#define SERVER_IP "192.168.0.64"
-#define SERVER_PORT 3001
+#define SECRET_SSID "Golden Legendary"
+#define SECRET_PASS "ZJCZHY2000"
+#define FIREBASE_HOST "arduinotempsensor-22a0f-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "T1ZZxRRSEU6Sfbzf2uXSIXEeL6jv07mwINAaNjXc"
