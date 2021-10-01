@@ -26,11 +26,12 @@ while True:
     maxTemp = db.child("MaxTemp").get().val()
     hasBeenAlerted = db.child("hasBeenAlerted").get().val()
     curTemp = db.child("Temp").get().val()
-    if (hasBeenAlerted == 0 and (curTemp > maxTemp or curTemp < minTemp)):
-        db.update({"hasBeenAlerted": 1})
-        sendAlert(curTemp, maxTemp, minTemp, curPhoneNumber)
-        print("sending alerts")
-    elif (hasBeenAlerted == 1 and (curTemp <= maxTemp and curTemp >= minTemp)):
-        db.update({"hasBeenAlerted": 0})
-        print("back to normal")
+    if (curTemp != -127.00):
+        if (hasBeenAlerted == 0 and (curTemp > maxTemp or curTemp < minTemp)):
+            db.update({"hasBeenAlerted": 1})
+            sendAlert(curTemp, maxTemp, minTemp, curPhoneNumber)
+            print("sending alerts")
+        elif (hasBeenAlerted == 1 and (curTemp <= maxTemp and curTemp >= minTemp)):
+            db.update({"hasBeenAlerted": 0})
+            print("back to normal")
     sleep(1)
