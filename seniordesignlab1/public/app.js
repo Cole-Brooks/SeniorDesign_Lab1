@@ -130,6 +130,8 @@ var x = Array.from(Array(300 + 1).keys()).slice(1);
       document.getElementById("chartBox2").style.display = "none";
       document.getElementById("chartBox1").style.display = "block";
   }
+  
+var cur_time;
 
 document.addEventListener('DOMContentLoaded', function() { 
 
@@ -160,20 +162,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var cur_temp;
         var cur_time;
+        var has_alerted = false;
 
         db_time.on('value', (snapshot) => {
             cur_time = snapshot.val();
 
-            console.log("Time:" + cur_time);
-            console.log("Temp:" + cur_temp);
-            y.shift();
-            y.push(cur_temp);
-
-            myChart1.update();
+            if(cur_temp == -127 && !has_alerted){
+              alert("Sensor Unplugged or Damaged!");
+              has_alerted = true;
+            }
+            else if(cur_temp != -127){
+              has_alerted = false;
+              console.log("Time:" + cur_time);
+              console.log("Temp:" + cur_temp);
+              y.shift();
+              y.push(cur_temp);
+              myChart1.update();
+            }
         });
+
         db_temp.on('value', (snapshot) => {
             cur_temp = snapshot.val();
         });
+
+        
 
         let features = [
             'auth', 
