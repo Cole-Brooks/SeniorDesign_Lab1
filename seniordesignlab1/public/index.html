@@ -1,23 +1,41 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Temperature Sensor</title>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="main.css" />
 
     <!-- update the version number as needed -->
     <script defer src="/__/firebase/9.1.0/firebase-app-compat.js"></script>
     <!-- include only the Firebase features as you need -->
     <script defer src="/__/firebase/9.1.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/9.1.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-messaging-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-firestore-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-functions-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-messaging-compat.js"
+    ></script>
     <script defer src="/__/firebase/9.1.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.1.0/firebase-performance-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-analytics-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-remote-config-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.1.0/firebase-performance-compat.js"
+    ></script>
     <!-- 
       initialize the SDK after all desired features are loaded, set useEmulator to false
       to avoid connecting the SDK to running emulators.
@@ -30,27 +48,50 @@
       <div id="chartBox1" class="chartBox1">
         <button onclick="toFarenheight()">Switch to Fahrenheit</button>
         <button onclick="turnOnDisplay()">Turn on Display</button>
-        <canvas id="myChart1"></canvas>        
+        <canvas id="myChart1"></canvas>
       </div>
 
       <div id="chartBox2" class="chartBox2">
         <button onclick="toCelsius()">Switch to Celsius</button>
         <button onclick="turnOnDisplay()">Turn on Display</button>
-        <canvas id="myChart2"></canvas>        
+        <canvas id="myChart2"></canvas>
+      </div>
+
+      <div id="phoneNumField">
+        <input id="userPhoneNum" class="userInput" placeholder="phone number" />
+        <button onclick="setPhoneNum()">SetNumber</button>
+      </div>
+
+      <div id="maxTempField">
+        <input id="maxTempInput" class="userInput" placeholder="Upper Bound" />
+        <button onclick="setMaxTemp()">SetMax</button>
+      </div>
+
+      <div id="minTempField">
+        <input id="minTempInput" class="userInput" placeholder="Lower Bound" />
+        <button onclick="setMinTemp()">SetMin</button>
       </div>
     </div>
 
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" 
-    integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"
+      integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js" 
-    integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"
+      integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
-    <script src = "app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

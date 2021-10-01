@@ -241,3 +241,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // ws.send("HTTP:TOGGLE") NOT SURE HOW TO HANDLE THIS YET
     firebase.database().ref('ToggleDisplay/').set(1);
   } 
+
+function setPhoneNum() {
+  firebase.database().ref('PhoneNumber/').set(parseInt(document.getElementById("userPhoneNum").value));
+}
+
+function setMaxTemp() {
+  firebase.database().ref('MaxTemp/').set(parseFloat(document.getElementById("maxTempInput").value));
+}
+
+function setMinTemp() {
+  firebase.database().ref('MinTemp/').set(parseFloat(document.getElementById("minTempInput").value));
+}
