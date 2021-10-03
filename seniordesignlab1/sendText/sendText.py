@@ -2,7 +2,7 @@
 from twilio.rest import Client
 
 account_sid = "AC967aa15506c58aeab1848fc5d95d1a38"
-auth_token = "057f2b2c9e816c510133d7ab73ebba5c"
+auth_token = "c25979ecd93924db05ecec3741b78597"
 
 client = Client(account_sid, auth_token)
 
@@ -11,12 +11,12 @@ client = Client(account_sid, auth_token)
 # false means too low
 
 
-def sendSMS(userNumber, tooHigh):
+def sendSMS(userNumber, tooHigh, maxTemp, minTemp):
     print("+1" + str(userNumber))
     if (tooHigh):
-        m = "Exceeding 30 Celsius"
+        m = f"Exceeding {maxTemp} Celsius"
     else:
-        m = "Below 0 Celsius"
+        m = f"Below {minTemp} Celsius"
 
     try:
         message = client.messages.create(

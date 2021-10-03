@@ -16,7 +16,7 @@ db = firebase.database()
 
 
 def sendAlert(curTemp, maxTemp, minTemp, phoneNum):
-    sendSMS(phoneNum, curTemp > maxTemp)
+    sendSMS(phoneNum, curTemp > maxTemp, maxTemp, minTemp)
 
 
 while True:
